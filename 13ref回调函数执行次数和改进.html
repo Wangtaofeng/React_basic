@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Person extends React.Component{
+        state = {
+            isHot: true
+        }
+        change = () =>{
+            const isHot = this.state.isHot
+            // 更改状态传入的参数是一个对象
+            this.setState({isHot: !isHot})
+
+        }
+        // 这里定义的是保存的方法,该方法用作ref里的回调函数,因为是组件对象的方法,因此不会被清空,不会重新赋值
+        // 写法就和ref里直接写回调函数的写法相同
+        fn1 = (c) =>{
+            this.input2 = c
+            console.log(c)
+        }
+        render() {
+            const {isHot} = this.state
+            return (
+                <div>
+                    <p>天气很{isHot ? '炎热' : '凉爽'}</p>
+                    {
+                        // 这里ref使用回调函数的方式将dom元素添加为实例的属性
+                        // 但是需要注意的是,这里的执行过程,最初的一次执行render函数时,会执行这个回调函数,随后将ref所在的元素传给回调函数的参数
+                        // 但是当状态更新时,render函数会重新执行,这时候,会再次执行回调函数,并且执行两次
+                        // 第一次会清空ref,即设置为null,因为render不认识这个回调函数,会清空并重新赋值
+                    }
+                    <input ref={c => {this.input = c;console.log(c)}} type="text"/><br/>
+
+                    {
+                        // 解决方法就是将回调函数设置为实例的属性,这样即使render函数重新执行了,并不会去清空已经存在的属性
+                        // 这样即使render重新执行了,当执行到ref时,发现这个回调函数是对象的属性,并不会再重新执行
+                        // 但是其实并不常用,上述虽说执行两次,但是实际上并不会造成任何影响
+                    }
+                    <input ref={this.fn1} type="text"/><br/>
+                    <button onClick={this.change}>点击改变天气</button>
+                </div>
+            )
+        }
+    }
+    ReactDOM.render(<Person/>, document.getElementById('test'))
+</script>
+</body>
+</html>

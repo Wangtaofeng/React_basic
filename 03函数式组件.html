@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<script type="text/babel">
+    function Dome(){
+        return <h1>hollow Dome</h1>
+    }
+    // 自定义组件的标签名首字母一定要大写,这里发生的过程是
+    // react去找这个自定义组件,发现是个函数,于是调用这个函数,随后将这个函数的返回值作为虚拟DOM放入容器中
+    // 注意调用函数时开启了严格模式,因此在组件函数内部打印this是undefined
+    ReactDOM.render(<Dome/>, document.getElementById('test'))
+</script>
+</body>
+</html>

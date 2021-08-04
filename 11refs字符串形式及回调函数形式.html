@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Person extends React.Component{
+        fn1 = () =>{
+            const {input1} = this.refs
+            alert(input1.value)
+        }
+        fn2 = () =>{
+            const {input2} = this.refs
+            alert(input2.value)
+        }
+        render(){
+            const {fn1, fn2} = this
+            return (
+                <div>
+                    {
+                        // 通过给组件中的元素加上ref标识,那么在组件里就能通过组件对象的refs属性获取到对应的元素,从而对其进行操作
+                        // 这种方式虽然简单,但是效率不高,react准备弃用这种方式
+                    }
+                    <input ref='input1' type="text" placeholder={'输入内容点击按钮'}/>&nbsp;
+                    <button onClick={fn1}>点击提示</button>&nbsp;
+                    <input ref='input2' onBlur={fn2} type="text" placeholder="失去焦点提示"/>
+                </div>
+            )
+        }
+    }
+
+    // 使用回调函数的形式指定ref
+    class Person2 extends React.Component{
+        fn1 = () =>{
+            // 直接在属性里面了,不在refs里面了
+            const {input1} = this
+            alert(input1.value)
+        }
+        fn2 = () =>{
+            const {input2} = this
+            alert(input2.value)
+        }
+        render(){
+            const {fn1, fn2} = this
+            return (
+                <div>
+                    {
+                        // 给ref绑定一个函数之后,render执行时会自动执行ref里的函数
+                        // 因此这里直接将自定义的名字赋值给组件对象的属性了,可以直接通过属性拿到
+                        // 自动执行这个回调函数时,会传一个参数,这个参数就是ref定义时所在的dom对象
+                    }
+                    <br/>
+                    <input ref={node =>{this.input1 = node;console.log(node)}} type="text" placeholder={'输入内容点击按钮'}/>&nbsp;
+                    <button onClick={fn1}>点击提示</button>&nbsp;
+                    <input ref={node =>{this.input2 = node}} onBlur={fn2} type="text" placeholder="失去焦点提示"/>
+                </div>
+            )
+        }
+    }
+    ReactDOM.render(<Person2/>, document.getElementById('test'))
+</script>
+</body>
+</html>

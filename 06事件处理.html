@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Person extends React.Component{
+        // 这里写这两个函数的目的有三个:
+        // 1.react里面的事件处理是基于事件委托的,也就是说所有的事件都被委托给了组件对象最上层的元素节点上
+        //   这么做的目的是提高效率,因为绑定给一个元素绑定一个函数就会占用一部分空间,如果很多元素的函数相同时,如果全都绑定给最上层,就只需要一个函数的空间
+        //   并且每次频繁的读取DOM中绑定的函数,无疑会拖慢速度,因此采用事件委托的方式
+        // 2.react之所以把原生事件(例如onclick)全都重新封装了一下(onClick),是由于兼容性的问题
+        // 3.官方提出的建议就是尽量少使用ref,很多时候的ref都是可以省略的,比如最下面这个input,如果说按照之前的,想要显示里面的内容,就直接绑定一个ref,通过ref获取了
+        //
+        //   但是我们可以直接绑定事件,通过触发该事件传递的event就直接获取到这个元素的所有信息
+        //   如果不是事件触发并不是处理当前元素,或者其他操作,可以视情况定义ref
+        fn1 = () =>{
+            const {input1} = this
+            alert(input1.value)
+        }
+        fn2 = (e) =>{
+            alert(e.target.value)
+        }
+        render() {
+            return (
+                <div>
+                    <input ref={c => this.input1 = c} type="text"/><br/>
+                    <button onClick={this.fn1}>点击提示表单1</button><br/>
+                    <input onBlur={this.fn2} type="text" placeholder={'失去焦点提示表单2'}/>
+                </div>
+            )
+        }
+    }
+    ReactDOM.render(<Person/>, document.getElementById('test'))
+</script>
+</body>
+</html>

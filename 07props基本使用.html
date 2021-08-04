@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<div id="test2"></div>
+<div id="test3"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Demo extends React.Component{
+        // 这里定义的数据只能组件内部使用,但是实际情况下,数据都是事先并不知道的,因此不能在这里定义数据部分
+        // state = {
+        //     name: 'tt',
+        //     sex: 'nv',
+        //     age: '18'
+        // }
+        render() {
+            // 标签里传来的值都会保存在this.props里
+            const {name, sex, age, fn} = this.props
+            return (
+                <ul>
+                    <li onClick={fn}>姓名:{name}</li>
+                    <li>性别:{sex}</li>
+                    <li>年龄:{age}</li>
+                </ul>
+            )
+        }
+    }
+    // 可以像这样直接把键值对写在标签里像组件对象传递数据,标签里的数据会保存在组件对象的props里
+    // ReactDOM.render(<Demo name="彤彤" sex='女' age='18'/>, document.getElementById('test'))
+
+    // 但是如果数据并不是之前已知的,而是通过后台发送过来的,就不能直接一一赋值
+    // 例如这个是后台给的数据
+    const temp = {
+        name: 'tong',
+        // sex: '女',
+        age: '18'
+    }
+    // 那么就可以通过拓展运算符直接传递
+    // 注意这里并不是直接将temp对象展开了,拓展运算符无法直接展开一个对象,如果需要展开一个对象,需要{...obj}的形式
+    // 下面这里的{...obj}里的花括号并不是代表对象,而是表示这里面是js代码,这里之所以能展开成功,是由于babel库和react核心库的作用
+    ReactDOM.render(<Demo {...temp}/>, document.getElementById('test'))
+
+    // 这里默认传的都是字符串,即使值是number形式,传递的依旧是字符串,传递原本数据类型时要用{}包起来
+    ReactDOM.render(<Demo name="彤彤" sex='女' age={18}/>, document.getElementById('test2'))
+
+    // 由于开始我们并不知道会传来什么类型的数据,以及是否会传递过来,因此我们可以配置props里的属性
+    // 引入prop-types.js后,会多一个PropTypes的实例对象,可以利用里面的方法对props进行限制
+    // 配置Demo类的prop
+    Demo.propTypes = {
+        // 使用prop-types库里的方法,限制属性的类型
+        name: PropTypes.string,
+        sex: PropTypes.string.isRequired, // 除了限制为字符串之外,还设置为必须要传递的属性
+        age: PropTypes.number,
+        fn: PropTypes.func // 注意这里限制函数的时候,是func不是function
+    }
+    // 指定默认值
+    Demo.defaultProps = {
+        sex: '男'
+    }
+    ReactDOM.render(<Demo name="彤彤" sex='女' age={18} fn={console.log('111')}/>, document.getElementById('test3'))
+</script>
+</body>
+</html>

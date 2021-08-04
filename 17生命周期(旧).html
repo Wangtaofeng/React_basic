@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <!--react的核心库-->
+  <script src="js/react.development.js"></script>
+  <!--操作DOM的拓展react库-->
+  <script src="js/react-dom.development.js"></script>
+  <!--将jsx转化为js的库-->
+  <script src="js/babel.min.js"></script>
+  <!--配置props的库-->
+  <script src="js/prop-types.js"></script>
+  <script type="text/babel">
+    /*
+      生命周期分为三条不同的路
+        1, 组件创建并挂载
+        2, 状态更新 ===> 组件更新(包含父子组件)
+        3, 强制组件更新
+    */
+
+    // 组件创建并挂载
+    class Demo1 extends React.Component {
+      // 首先执行的constructor钩子
+      constructor(props) {
+        console.log('1-------constructor')
+        super(props)
+        this.state = { count: 1 }
+      }
+      // 接着执行组件挂载前的钩子
+      componentWillMount() {
+        console.log('1--------------componentWillMount')
+      }
+      // 执行挂载钩子, 执行n+1次, 首次渲染执行一次, 之后每次更新都会执行一次
+      render() {
+        console.log('1-------------render')
+        const { count } = this.state
+        return (
+          <div>
+            <h1>{count}</h1>
+            <button onClick={this.Count}>点我+1</button>
+            <button onClick={this.remove}>卸载</button>
+          </div>
+        )
+      }
+      // 挂载完成后执行的钩子
+      componentDidMount() {
+        console.log('1-------------componentDidMount')
+      }
+      // 准备卸载时的钩子
+      componentWillUnmount() {
+        console.log('1-------------componentWillUnmount')
+      }
+      // 组件更新进过的阀门, 默认不写, 且为true
+      Count = () => {
+        this.setState({ count: this.state.count + 1 })
+      }
+      remove = () => {
+        ReactDOM.unmountComponentAtNode(document.getElementById('app'))
+      }
+    }
+
+    // 组件更新(第2,3条路)
+    class Demo2 extends React.Component {
+      state = { count: 1 }
+      // 在绑定的点击事件中, 点击后状态会更新, 组件默认是更新的, 其实不然
+      /*
+        状态更新 ===> shouldComponentUpdate (如果返回true) ====> componentWillUpdate() ====> render() ====> componentDidUpdate()
+      */
+      // 询问是否更新组件的钩子函数, 返回布尔值
+      shouldComponentUpdate() {
+        console.log('2------------------shouldComponentUpdate')
+        return true
+      }
+      // 即将更新钩子函数
+      componentWillUpdate() {
+        console.log('2------------------componentWillUpdate')
+      }
+      // render()钩子函数
+      render() {
+        console.log('2-------------render')
+        const { count } = this.state
+        return (
+          <div>
+            <h1>{count}</h1>
+            <button onClick={this.Count}>点我+1</button>
+            <button onClick={this.forceUp}>强制更新</button>
+            <DemoChild number={count} />
+          </div>
+        )
+      }
+      // 更新完成后的钩子函数
+      componentDidUpdate() {
+        console.log('2-----------componentDidUpdate')
+      }
+
+      // 更新状态
+      Count = () => {
+        this.setState({ count: this.state.count + 1 })
+      }
+      // 不更新状态, 调用强制更新的函数, 导致跳过阀门直接执行后面的钩子函数
+      forceUp = () => {
+        this.forceUpdate()
+      }
+    }
+    // 子组件
+    class DemoChild extends React.Component {
+
+      // 父组件更新会导致子组件更新, 执行全部的更新相关的钩子函数, 并重新接受传递的props的值
+
+      // 子组件会重新接受props值, 并会执行将要接受的钩子函数
+      componentWillReceiveProps() {
+        console.log('3------------------componentWillReceiveProps')
+      }
+      // 询问是否更新组件的钩子函数, 返回布尔值
+      shouldComponentUpdate() {
+        console.log('3------------------shouldComponentUpdate')
+        return true
+      }
+      // 即将更新钩子函数
+      componentWillUpdate() {
+        console.log('3------------------componentWillUpdate')
+      }
+      // render()钩子函数
+      render() {
+        console.log('3-------------render')
+        const { number } = this.props
+        return (
+          <div>
+            <h1>{number}</h1>
+          </div>
+        )
+      }
+      // 更新完成后的钩子函数
+      componentDidUpdate() {
+        console.log('3-----------componentDidUpdate')
+      }
+    }
+    /*
+    可以看到父子组件的钩子函数执行顺序
+    (父组件shouldUpdate) ===>父组件 willUpdate ===> 父组件render 
+    ===> 子组件willReceiveProps ===> 子组件shouldUpdate(如果为true) ===> 子组件走到头, 即使状态未改变 ===> 父组件DidUpdate 
+       */
+
+    ReactDOM.render(<Demo2 />, document.getElementById('app'))
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+  class Demo extends React.Component{
+    state = {
+      opacity: 1
+    }
+    remove = () => {
+      // 卸载组件
+      ReactDOM.unmountComponentAtNode(document.getElementById('app'))
+    }
+    render() {
+      // 定时器不能放在render中, render每次更改状态就会执行一次
+      // 想要一开始就执行, 并且不受状态更改的影响可以使用钩子函数
+
+      // setInterval(() => {
+      //   let { opacity } = this.state
+      //   opacity -= 0.2
+      //   if(opacity <= 0){
+      //     opacity = 1
+      //   }
+      //   this.setState({opacity})
+      // }, 500)
+      return (
+        <div>
+          <h1 style={{opacity: this.state.opacity}}>慢慢出现</h1>
+          <button onClick={this.remove}>消失</button>
+        </div>
+      )
+    }
+
+    // 钩子函数是React提供的, 因此不需要写出箭头函数的形式
+
+    // 已经创建好实例并且挂载完成后执行
+    componentDidMount() {
+        this.timer = setInterval(() => {
+        let { opacity } = this.state
+        opacity -= 0.2
+        if(opacity <= 0){
+          opacity = 1
+        }
+        this.setState({opacity})
+      }, 200)
+    }
+    // 当组件被卸载的时候要注意一些收尾工作, 例如还在更改状态的定时器
+    componentWillUnmount() {
+      clearInterval(this.timer)
+    }
+  }
+  ReactDOM.render(<Demo/>, document.getElementById('app'))
+</script>
+</body>
+</html>

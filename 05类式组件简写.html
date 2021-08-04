@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<script type="text/babel">
+    class Demo extends React.Component {
+        // 在类里面直接赋值语句书写state即可直接将state作为实例对象的属性,而不需要挂在原型上
+        state = {
+            isHot: true,
+            wind: '微风'
+        }
+        // 同样是通过赋值语句将方法作为实例对象的方法,而不是放在原型上
+        // 需要注意的是,不通过构造器里bind绑定this的话,可以直接赋值语句时就赋值一个箭头函数
+        // 箭头函数一个特点就是不用关心this指向问题,即定义时的this就是执行时的this
+        changeWeather = () => {
+            const is = this.state.isHot
+            this.setState({isHot: !is})
+        }
+
+        render() {
+            const {isHot, wind} = this.state
+            return (
+                <div>
+                    <h1>今天天气{isHot ? '炎热' : '凉爽'},{wind}</h1>
+                    <button onClick={this.changeWeather}>改变</button>
+                </div>
+            )
+        }
+    }
+
+    ReactDOM.render(<Demo/>, document.getElementById('test'))
+</script>
+</body>
+</html>

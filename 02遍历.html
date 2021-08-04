@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<script type="text/babel">
+    const lists = ['Angular', 'React', 'Vue']
+    const VDOM = (
+        // 只能有一个根组件
+        <div>
+            <h1>前端框架列表</h1>
+            <ul>
+                {
+                // 在jsx中,在标签里放入数组即可自动遍历
+                // 这里的标签中不能写js代码,但是能写表达式,可以使用方法和函数
+                // 在需要遍历元素渲染的情况下,可以选择两种方式,一种是常规的forEach,另一种是map
+                // 下面演示的是map的用法
+                }
+                
+                {lists.map((list, index) =>{
+                    // 注意遍历时一般需要一个唯一的 key放进去,并且在表达式中写标签时还是不能写引号,同样在标签里如果有表达式直接{}包起来
+                    return <li key={index}>{list}</li>
+                })}
+            </ul>
+        </div>
+    )
+    ReactDOM.render(VDOM, document.getElementById('test'))
+</script>
+</body>
+</html>

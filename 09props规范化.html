@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<div id="test2"></div>
+<div id="test3"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Person extends React.Component{
+        // constructor(props){
+        //     // 如果使用了构造函数,那么这里接收的props就需要使用super接收
+        //     // 否则this.props就没有接收到任何数据
+        //     // 但是如果不使用constructor的话,就不用管了
+        //     // 并且根本就不用constructor
+        //     super(props)
+        // }
+
+        // 对props的限制即默认值规范化来说应该放在类里的,因为这个类就是一个组件,应该包含这个组件相关的所有东西
+        // 直接等号赋值就添加为了组件实例对象的属性
+        // 注意要加上static----
+        // 原因: 这俩是静态属性,react只从静态属性里认识它俩,因此必须加static
+        static propTypes = {
+            name: PropTypes.string
+        }
+        static defaultProps = {
+            age: 18
+        }
+        // 注意state不能加static,因为这不是静态属性,这只是给实例对象赋值了一个属性
+        state = {
+            sex: '女'
+        }
+        render() {
+            const {name, age} = this.props
+            return (
+                <ul>
+                    <li>name: {name}</li>
+                    <li>age: {age}</li>
+                    <li>sex: {this.state.sex}</li>
+                </ul>
+            )
+        }
+    }
+    ReactDOM.render(<Person name='name'/>, document.getElementById('test'))
+</script>
+</body>
+</html>

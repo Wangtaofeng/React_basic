@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    // 像这种只有用到了才去取值的叫做非受控组件
+    // 我只有点击提交才会去取输入框里的值
+    class Demo extends React.Component{
+        fn = (event) => {
+            // 通过事件触发对象的preventDefault()方法可以阻止事件发生时伴随的默认事件
+            // 比如这里触发的事件是提交,那么伴随的默认事件就是打开一个新页面
+            event.preventDefault()
+            const {username, password} = this
+            console.log(username.value,password.value)
+
+        }
+        render() {
+            return(
+                <form onSubmit={this.fn}>
+                    账号: <input ref={c => this.username = c} type="text"/><br/>
+                    密码: <input ref={c => this.password = c} type="password"/><br/>
+                    <button>提交</button>
+                </form>
+            )
+        }
+    }
+
+    // 还有一种受控组件,也就是vue里面的双向数据绑定,实时获取数据.只要改变就会获取
+    // 但是并没有直接给我们提供,需要我们自己手动实现
+    class Demo2 extends React.Component{
+        state = {
+            // 初始化双向绑定的数据
+            username: '111',
+            password: ''
+        }
+        // 根据onChange事件监视输入框的变化,只要改变,就会更新状态
+        // 也可以使用onInput,注意change事件和input事件的区别
+        // 这样就实现了双向数据绑定的原理
+        // 在react里这叫做受控组件
+        fn1 = (event) => {
+            this.setState({username: event.target.value})
+            console.log(this.state.username)
+        }
+        fn2 = (event) => {
+            this.setState({password: event.target.value})
+            console.log(this.state.password)
+        }
+        render() {
+            return(
+                <form>
+                    账号: <input onChange={this.fn1} type="text" value={this.state.username}/><br/>
+                    密码: <input onInput={this.fn2} type="password" value={this.state.password}/><br/>
+                    <button>提交</button>
+                </form>
+            )
+        }
+    }
+    ReactDOM.render(<Demo2 />, document.getElementById('test'))
+</script>
+</body>
+</html>

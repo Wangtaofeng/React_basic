@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .news {
+      height: 150px;
+      width: 100px;
+      background-color: aqua;
+      overflow-y: auto;
+    }
+
+    .new {
+      height: 30px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <body>
+    <div id="app"></div>
+    <!--react的核心库-->
+    <script src="new_js/react.development.js"></script>
+    <!--操作DOM的拓展react库-->
+    <script src="new_js/react-dom.development.js"></script>
+    <!--将jsx转化为js的库-->
+    <script src="new_js/babel.min.js"></script>
+    <!--配置props的库-->
+    <script src="new_js/prop-types.js"></script>
+    <script type="text/babel">
+      // 详解一下getSnapshotBeforeUpdate钩子
+      // 现在做的一个效果就是, state和页面一直在更新news
+      // 相当于是新的new一直在往上压, 旧的一直被挤下去
+      // 但是现在想做的就是, 视图停留在观看的那里, 也就是说不随着压进去的而滚动, 可以自己滚动, 但不会自动
+      class Demo extends React.Component {
+        state = {
+          news: []
+        }
+        componentDidMount() {
+          setInterval(() => {
+            let n = '新闻' + (this.state.news.length + 1)
+            this.setState({ news: [n, ...this.state.news] })
+          }, 500)
+        }
+        render() {
+          let { news } = this.state
+          return (
+            <div className="news" ref='list'>
+              {
+                news.map((e, i) => {
+                  return <div className="new" key={i}>{e}</div>
+                })
+              }
+            </div>
+          )
+        }
+        // 在这里返回更新之前的总体高度
+        getSnapshotBeforeUpdate() {
+          return this.refs.list.scrollHeight
+        }
+        // 在更新完成拿到这个值
+        componentDidUpdate(pros, state, snap) {
+          // 设置实际元素距离容器顶端的距离, 空出来每次更新的可以填上去的位置, 这样就可以保证滚动条不自动滚动
+          // 用更新后的高度 - 更新前的高度, 得到每次需要空出来的位置, 然后累计相加, 因为每次更新都需要加一次
+          this.refs.list.scrollTop += this.refs.list.scrollHeight - snap
+        }
+      }
+      ReactDOM.render(<Demo />, document.getElementById('app'))
+    </script>
+  </body>
+
+</html>

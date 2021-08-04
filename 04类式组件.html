@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<script type="text/babel">
+    // 类式组件自定义的类需要继承自React.Component类
+    // 并且需要在render方法里定义返回值做为虚拟DOM
+    // 可以不使用构造方法, 此时状态为{}
+    // 构造函数和类中定义的属性方法之间不需要',' 
+    class Demo extends React.Component {
+        // 构造器,只执行一次,即创建组件对象时执行一次
+        constructor(props) {
+            super(props)
+            // constructor里的this是组件的实例对象
+            console.log(this)
+            this.state = {
+                isFunction: false
+            }
+            // 将组件原型上的fn方法的this绑定为组件对象后,返回一个新的函数赋值给组件对象
+            // 即组件对象拥有了一个新的同名方法,该方法的this指向组件对象
+            this.fn = this.fn.bind(this)
+            this.fn3 = this.fn3.bind(this)
+        }
+
+        // 组件对象的方法,执行n次,调用几次执行几次
+        // 组件方法里的this是调用这个方法的对象
+        fn() {
+            console.log('我是组件中的点击事件')
+            // 在类里面的方法自动开启了局部严格模式,这里的this是undefined
+            // 因为这个方法并不是组件对象调用的,将这个方法绑定到onClick上之后,调用时就是Window调用的
+            // 而严格模式下将this为Window的指定为undefined
+            // 也就是说在这里并不能操作组件对象里的状态
+            // 因此需要绑定一下this ↑ 见构造器里的写法
+            console.log(this)
+        }
+
+        fn3() {
+            const is = this.state.isFunction
+            // 修改state只能通过react提供的setState方法进行修改
+            // 该方法传递的参数是一个对象,对应着state里的属性和值(对象里不需要使用this找state),暂且认为setState里的参数会自动对state解构赋值
+            this.setState({isFunction: !is})
+        }
+
+        // render函数执行1+n次,第一次是初始化显示,随后状态每更新一次就会执行一次
+        render() {
+            // render里的this就是当前所在的组件(实例)对象,因此可以直接解构赋值取值
+            const {isFunction} = this.state
+            return (
+                <div>
+                    <h1>hollow {isFunction ? 'Class' : 'Function'}</h1>
+                    {
+                        // react推荐的绑定事件的方式是在标签里面加监听
+                        // 注意事件和js中写法有点差别, 不能直接onclick,而是根据react提供的事件绑定关键字
+                        // 同样的,回调函数需要用{}包起来,因为是js表达式,不能调用,这里是将回调函数赋值给react定义的事件
+                        // 如果调用了,那么就是将undefined赋值给onClick了
+                        // 这里是将this原型上的fn函数赋值给了onClick,真正调用的时候是window调用的
+                    }
+                    <button onClick={this.fn}>class里的点击事件</button>
+                    <button onClick={fn2}>class外的点击事件</button>
+                    <button onClick={this.fn3}>修改state</button>
+                </div>
+            )
+        }
+    }
+
+    // 除了将函数定义在class里,在外面也能定义事件的回调函数
+    // 一般不会使用这种方式,一方面因为这里不能操作组件对象里的state
+    // 另一方面来说,一个组件里应当包含所需要的方法,而不是在外部定义
+    function fn2() {
+        console.log('我是class外面的回调函数')
+    }
+
+    // 类式组件渲染过程:
+    // 发现标签是一个组件,找到对应的组件,发现组件是一个类
+    // new一个类的实例,将这个执行这个实例的render(原型上的方法),因此render的this也是组件对象,将return返回值作为虚拟DOM添加到真实Dom中
+    ReactDOM.render(<Demo/>, document.getElementById('test'))
+</script>
+</body>
+</html>

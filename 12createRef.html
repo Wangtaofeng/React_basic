@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Person extends React.Component{
+        // 前面已经介绍了字符串形式,两种回调函数形式定义ref
+        // 官方最新推出的api中建议使用createRef来创建ref
+        // 调用React类里的createRef方法会创建一个容器,这个容器里只存放了一个current,它的值就是ref指定为该容器名的元素
+        // 即一个容器只能对应一个元素,当元素的ref属性的名指定为这个容器名时,该元素就被保存在了该容器的current属性里
+        myRef = React.createRef()
+        al = () =>{
+            console.log(this.myRef.current)
+        }
+        render() {
+            return (
+                <div>
+                    <input ref={this.myRef} type="text"/>
+                    <button onClick={this.al}>点击提示</button>
+                </div>
+            )
+        }
+    }
+    ReactDOM.render(<Person/>, document.getElementById('test'))
+</script>
+</body>
+</html>

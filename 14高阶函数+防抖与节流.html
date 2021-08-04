@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        div{
+            margin: 0 auto;
+            height: 200px;
+            width: 200px;
+            background-color: #8a6de9;
+        }
+    </style>
+</head>
+<body>
+<!--高阶函数,满足下列两点之一的称为高阶函数:-->
+<!--1. 函数的参数接收一个函数的-->
+<!--2. 函数的返回值依旧是个函数的-->
+<!--函数柯理化: 通过函数调用继续返回函数的方式,实现多参数的多次接收,最终在最后一个return的函数里统一处理所有函数的形式-->
+ <div id="test"></div>
+<input type="text" id="test2">
+<script>
+    // 一般函数写法
+    function sum(a, b, c) {
+        return a + b + c
+    }
+    console.log(sum(1, 2, 3))
+    // 柯理化写法
+    function sum2(a) {
+        return (b) =>{
+            return (c) =>{
+                return a + b + c
+            }
+        }
+    }
+    // 这种链式调用看起来很脑残的操作, 实际上再开发中是经常会用到的, 下面会具体说说看都用到啥了
+    console.log(sum2(1)(2)(3))
+
+    // 在事件中, 我们只能给一个函数作为回调函数,因此我们写回调函数的时候不能去加(),如果加了,就相当于把函数执行的结果给时间监听了
+    // 意思就是,事件监听需要一个函数作为回调,你只能去给它写函数名,当是事件触发时,window就会去执行这个函数
+    // 如果加了()的话,就等于刚执行到事件监听这个代码的时候,就会调用这个函数,如果这个函数没有返回值的话,就等于将undefined作为事件的回调函数了
+    // 因此如果是需要加()的情况,那么()里需要返回一个函数,执行到下面这段代码的时候,就会首先执行你写的函数,因为加了()就等于自己调用
+    // 随后将函数的返回结果作为回调函数,给事件绑定了
+    // document.querySelector('#test').addEventListener('mousemove',  callback1())
+    // function callback1() {
+    //     return function (){
+    //         console.log(1)
+    //     }
+    // }
+
+    // 上面引出这个原理就是为了接着到防抖和节流,如果一个事件频繁触发,可能给浏览器或者服务器带来很大的压力,我们希望它执行又不希望频繁执行
+    // 例如onmousemove, input等
+    // 如果直接给onmousemove绑定一个回调函数的话,那么这个函数将会一直频繁触发
+    // 有两种解决方式,一种是防抖,一种是节流
+    // 下面是防抖的写法, 防抖就比较秀了,不管你触发多少次事件,只有停止触发,并且间隔我设定的时间后,才会执行
+    // 因为每次触发都会清楚掉上一次的定时器并且重新计时,所以如果我一直触发,就不会执行我想要执行的函数
+    // document.querySelector('#test').addEventListener('mousemove',  callback2())
+    // let timer = null
+    // function callback2 () {
+    //     clearTimeout(timer)
+    //     timer = setTimeout(() =>{
+    //         console.log(this)
+    //     }, 1000)
+    // }
+
+
+    // 在很多时候, 一个防抖函数并不是一个事件去使用, 因此回调函数也会不同,接下来修改是将回调函数让回调函数是什么可以自己制定,就是传递了一个函数作为回调函数
+    // 那么我想给回调函数传参,如果直接加()的话,就等于绑定时直接执行了,因此可以用上述的那样,把真正要绑定的回调函数return回去
+    document.querySelector('#test2').addEventListener('input',  debounce(fn1))
+    function debounce(fn) {
+        let timer = null
+        // console.log(this) // window
+        // 这里不要使用箭头函数,因为箭头函数没有this,直接使用普通函数,这个函数的this就是触发事件的dom对象
+        // 但是这个函数并不是我们传的函数,也就说给事件绑定的不是我们传的函数,只是一个处理我们函数的函数,因此我们需要把我们传递的函数的this指向改成触发事件的dom
+        return function (e){
+            // console.log(this) // dom对象
+            const that = this
+            const event = e
+            clearTimeout(timer)
+
+            // 这里达到效果了,但是this指向变了,这个函数的是在定时器里调用的,定时器里的函数不是我们调用的,因此this肯定是window
+
+            // timer = setTimeout(fn, 500)
+            // 在前面给dom元素绑定的回调函数里保存this,下面将要执行的函数this改一下呗
+            // 但是这样好像又出问题了,因为绑定了之后定时器没用了,这个防抖也没用了,一直在执行
+            // 我觉得是绑定this的时候出了问题,这里绑定的时候就直接执行了,和前面说的一样,定时器是需要一个函数作为回调函数
+
+            // timer = setTimeout(fn.apply(that), 500)
+
+            // 因此这里就正常的将一个回调函数给定时器,在回调函数里执行fn,之所以不直接将fn作为回调函数,是因为需要一个绑定的过程
+            timer = setTimeout(() =>{
+                // 这里将event事件对象当做参数传递, 不然就是undefined,因为还是上面说的,fn并不是直接绑定的回调函数,它外面有好几层壳
+                fn.apply(that, [event])
+            }, 500)
+        }
+    }
+    function fn1(e) {
+        console.log(1)
+    }
+    // 以上是防抖, 就是一段频繁触发的事件,只有当我停止触发一段时间后才会执行,否则就直接不执行,可以用来输入框的判断,如果停止输入一段时间,会自动执行回调(验证)
+    // 但是也会有个不能解决的方面,例如我要检查滚动条的高度时使用防抖,只有我停止滚动才会检查,那么如果我一直滚动,就不会检查
+    // 下面介绍的是节流, 节流不会使得频繁触发的事件停止,也就如名字一样,只是起到节流的作用,对事件触发的次数进行稀释
+
+    document.querySelector('#test').addEventListener('mousemove',  throttle(fn1))
+    function throttle(fn){
+        const wait = 1000
+        let oldTime = 0
+        return function (e) {
+            const that = this, event = e
+            let newTime = +new Date()
+            if(newTime - oldTime > wait){
+                fn.apply(that, [event])
+                // 只要执行了一次之后,才会重新计算时间间隔,即将现在时间值给old
+                oldTime = newTime
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="demo"></div>
+</body>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    class Demo extends React.Component{
+        state = {
+            username: '',
+            password: ''
+        }
+        setInput = (type) =>{
+            // 这里不同于正常的html中的回调函数使用高阶,这里的this就是react,包括event也是react提供的,直接使用箭头函数就行
+            // 不需要再使用一般函数,因为不需要让回调函数的this指向dom,这些react都给我们封装到event里面了
+
+            // 这里使用这种方式给输入框绑定函数是因为想要让所有的输入框都使用一个函数处理,要设置那个state的值有输入框决定
+            // 如果一个输入框一个函数,那输入框多了全都是重复的代码了
+            return (e) => {
+                this.setState({[type]: e.target.value})
+            }
+        }
+        // 不使用柯理化的函数
+        setInput2 = (type, value) =>{
+            this.setState({[type]:value})
+        }
+        render() {
+            return (
+
+                <div>
+                    {
+                        // 这个是常用的返回函数作为回调函数形式
+                        // 这里之所以使用函数柯理化,是因为我想用一个函数来处理所有输入框的存值,但是想要区分的话就必须给绑定的回调函数传参数
+                        // 一旦传了参数的话,绑定的就不会那个函数了,因为写上()就会执行了,传递的是该函数的返回值
+                        // 因此我们让那个函数返回一个函数作为最终的回调函数,而一旦被react绑定的回调函数,就会被封装好event,在加上上层的被执行的函数传来的参数
+                        // 就可以收集到存值的类型, 和event(可以用来拿值)
+                    }
+                    <div>
+                        <input type="text" value={this.state.username} onChange={this.setInput('username')}/>
+                        <input type="password" value={this.state.password} onChange={this.setInput('password')}/>
+                    </div>
+
+                    {
+                        // 当然也可以不使用函数柯理化来完成
+                        // 这里也能完成的关键在于,我确实给事件绑定了一个回调函数,这个回调函数既然是给事件绑定的,那肯定有event
+                        // 在回调函数里, 我再执行一个函数,同时将需要的type, 以及回调函数本身被封装的event一起传过去
+                    }
+                    <div>
+                        <input type="text" value={this.state.username} onChange={(e) =>{this.setInput2('username',e.target.value)}}/>
+                        <input type="password" value={this.state.password} onChange={(e) =>{this.setInput2('password',e.target.value)}}/>
+                    </div>
+                </div>
+
+            )
+        }
+    }
+    ReactDOM.render(<Demo/>, document.getElementById('demo'))
+</script>
+</html>

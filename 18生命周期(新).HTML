@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <!--react的核心库-->
+  <script src="new_js/react.development.js"></script>
+  <!--操作DOM的拓展react库-->
+  <script src="new_js/react-dom.development.js"></script>
+  <!--将jsx转化为js的库-->
+  <script src="new_js/babel.min.js"></script>
+  <!--配置props的库-->
+  <script src="new_js/prop-types.js"></script>
+  <script type="text/babel">
+    class Demo extends React.Component {
+      state = { count: 1 }
+      constructor(props) {
+        console.log('1-------constructor')
+        super(props)
+        this.state = { count: 1 }
+      }
+      // 新的生命周期函数已经不建议使用下面三个will钩子函数了, 虽然现在使用还不会报错, 但是已经提出警告了
+      // 想要继续无警告的使用需要加上UNSAFE_前缀
+      // 三个不建议使用钩子函数分别是 wilMount, willUpdate, willReceiceProps
+
+      // 即将挂载的钩子函数--------不建议
+      // UNSAFE_componentWillMount() {
+      //   console.log('1--------------componentWillMount')
+      // }
+      // 询问是否更新组件的钩子函数, 返回布尔值
+      shouldComponentUpdate() {
+        console.log('2------------------shouldComponentUpdate')
+        return true
+      }
+      // 即将更新钩子函数-------------不建议
+      // componentWillUpdate() {
+      //   console.log('2------------------componentWillUpdate')
+      // }
+      // render()钩子函数
+      render() {
+        console.log('2-------------render')
+        const { count, number } = this.state
+        console.log(this.state)
+        return (
+          <div>
+            <h1>{count}</h1>
+            <button onClick={this.Count}>点我+1</button>
+            <button onClick={this.forceUp}>强制更新</button>
+            <h1>{number}</h1>
+          </div>
+        )
+      }
+      // 挂载完成后执行的钩子
+      componentDidMount() {
+        console.log('1-------------componentDidMount')
+      }
+      // 准备卸载时的钩子, 切记准备卸载的钩子虽然带will但是没有说不建议
+      componentWillUnmount() {
+        console.log('1-------------componentWillUnmount')
+      }
+      // 更新完成后的钩子函数
+      // 可以拿到更新前的props, state, 以及snapshot传来的值
+      componentDidUpdate(preprops, prestate, snapshotValue) {
+        console.log('2++++++++++++++componentDidUpdate', preprops, prestate, snapshotValue)
+      }
+
+
+      // 新的钩子函数
+
+      // 该钩子函数的执行顺序仅在constructor之后, 也就是说在初始化的时候, 在render之前
+      // 更新的时候在shouldUpdate之前, 无论是父子组件更新, 强制更新, 普通状态更新, 它都是第一个执行, 随后是shouldUpdate(强制更新不走should)
+      // 这个组件本身的含义就是从props中拿值作为state, 因此是在最开始执行, 无论是初始化还是更新
+      // 并且它不是实例对象的, 它是组件类的, 也就说, 定义的时候需要指明为静态方法
+      // 从props得到状态对象, 需要返回一个状态对象
+      // 仅仅只适用于组件的状态对象全部都来自pros的组件, 一般情况下不使用
+      // 该函数返回状态函数后, 组件的状态以它返回的为准
+      // 接收两个参数, props, state
+      static getDerivedStateFromProps(props, state) {
+        console.log('getDeriveStateFromProps', props, state)
+        // 返回的状态对象, 作为了组件的状态值(add进去的)
+        // **但是从props中得来是state值不能改变, 想要变化只能传新的值来替换掉这个派生的state
+        return props
+      }
+
+      // 纠正一个错误的观点, render不是更新的函数, 它做的只是更新了实例, 还并没有挂载到DOM上
+      // 现在在render() 和DidMound()两个钩子之间又加上了一个相当于beforerender的钩子
+      // 即getSnapshotBeforeUpdate钩子, 它的作用在于使用它可以在虚拟Dom挂载真实Dom之前获取到真实Dom的值, 以及更新前的props, state值
+      // 需要return值, 这个值将会在DidMount钩子中拿到, 做一些事
+      getSnapshotBeforeUpdate(preprops, prestate) {
+        console.log('++++++++++++getSnapshotBeforeUpdate', preprops, prestate)
+        return 1
+      }
+
+
+
+      // 更新状态
+      Count = () => {
+        this.setState({ count: this.state.count + 1, number: this.state.number + 1 })
+      }
+      // 不更新状态, 调用强制更新的函数, 导致跳过阀门直接执行后面的钩子函数
+      forceUp = () => {
+        this.forceUpdate()
+      }
+    }
+    ReactDOM.render(<Demo number={11111} />, document.getElementById('app'))
+  </script>
+</body>
+
+</html>

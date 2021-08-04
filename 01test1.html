@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .a{
+            color: pink;
+        }
+    </style>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<script type="text/babel">
+    const name = 'title'
+    // 创建虚拟DOM
+    // 这里的虚拟节点不是字符串,也不是dom,通过打印可以看出最终产生的是一个对象
+    // 如果想在这里使用js的变量的话,那么需要用{}包起来后才能使用js表达式,注意是表达式,不是代码
+    // 样式类名不能直接class 而是通过className添加,已经定义的样式表不需要{},因为这不是js中的表达式
+    // 内联样式需要{}表示是在写js表达式,再来一个{}表示是一个对象,下面会有写
+    const VDOM = <h1 className="a" style={{fontSize: "12px"}} id={name}>hollow react</h1>
+    // 将虚拟DOM放入到容器中
+    // 在引入react相关的库之后,就会有一个react的对象可供使用
+    // 其中ReactDom对象的render方法是将虚拟节点添加到容器中的
+    // 该方法接收两个参数,一个是虚拟节点,一个是对应的容器dom
+    ReactDOM.render(VDOM, document.getElementById('test'))
+
+</script>
+</body>
+</html>

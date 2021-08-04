@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--页面中需要有一个容器来接收虚拟节点-->
+<div id="test"></div>
+<!--react的核心库-->
+<script src="js/react.development.js"></script>
+<!--操作DOM的拓展react库-->
+<script src="js/react-dom.development.js"></script>
+<!--将jsx转化为js的库-->
+<script src="js/babel.min.js"></script>
+<!--配置props的库-->
+<script src="js/prop-types.js"></script>
+<script type="text/babel">
+    // 函数组件没有自己的this,不能使用state和refs
+    // 但是函数组件可以接收参数,即可以接收props作为参数来使用
+    // 记住props接收过来的数据是只读的
+    function Person(props) {
+        const{name, age, sex} = props
+        return (
+            <ul>
+                <li>name: {name}</li>
+                <li>age: {age}</li>
+                <li>sex: {sex}</li>
+            </ul>
+        )
+    }
+    // 由于函数不能在里面直接static添加静态属性,因此如果需要限制props或者提供默认值的话,只能在外部添加
+    Person.propTypes = {
+        name: PropTypes.string
+    }
+    Person.defaultProps = {
+        age: 18
+    }
+    ReactDOM.render(<Person name={18}  sex={'女'}/>, document.getElementById('test'))
+</script>
+</body>
+</html>
